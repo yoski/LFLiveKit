@@ -112,7 +112,7 @@
 - (void)pushVideo:(nullable CVPixelBufferRef)pixelBuffer at:(CMTime)pts {
     if(self.captureType & LFLiveInputMaskVideo){
         // set timescale to 1000
-        uint64_t time = (pts.value * 1000 / pts.timescale);
+        uint64_t time = ((double)pts.value / pts.timescale * 1000);
         if (self.uploading) [self.videoEncoder encodeVideoData:pixelBuffer timeStamp:time];
     }
 }
@@ -123,7 +123,7 @@
 
 - (void)pushAudio:(nullable NSData*)audioData at:(CMTime)pts {
     if(self.captureType & LFLiveInputMaskAudio){
-        uint64_t time = (pts.value * 1000 / pts.timescale);
+        uint64_t time = ((double)pts.value / pts.timescale * 1000);
         if (self.uploading) [self.audioEncoder encodeAudioData:audioData timeStamp:time];
     }
 }
