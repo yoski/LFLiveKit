@@ -109,16 +109,26 @@
     self.socket = nil;
 }
 
-- (void)pushVideo:(nullable CVPixelBufferRef)pixelBuffer{
+- (void)pushVideo:(nullable CVPixelBufferRef)pixelBuffer at:(CMTime)pts {
     if(self.captureType & LFLiveInputMaskVideo){
-        if (self.uploading) [self.videoEncoder encodeVideoData:pixelBuffer timeStamp:NOW];
+        // set timescale to 1000
+        uint64_t time = (pts.value * 1000 / pts.timescale);
+        if (self.uploading) [self.videoEncoder encodeVideoData:pixelBuffer timeStamp:time];
     }
 }
 
-- (void)pushAudio:(nullable NSData*)audioData{
+- (void)pushVideo:(nullable CVPixelBufferRef)pixelBuffer{
+    [self pushVideo:pixelBuffer at:CMTimeMake(NOW, 1000)];
+}
+
+- (void)pushAudio:(nullable NSData*)audioData at:(CMTime)pts {
     if(self.captureType & LFLiveInputMaskAudio){
-        if (self.uploading) [self.audioEncoder encodeAudioData:audioData timeStamp:NOW];
+        uint64_t time = (pts.value * 1000 / pts.timescale);
+        if (self.uploading) [self.audioEncoder encodeAudioData:audioData timeStamp:time];
     }
+}
+- (void)pushAudio:(nullable NSData*)audioData{
+    [self pushAudio:audioData at:CMTimeMake(NOW, 1000)];
 }
 
 #pragma mark -- PrivateMethod
